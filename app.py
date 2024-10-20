@@ -1,7 +1,6 @@
 import io
 import base64
 import streamlit as st
-import os
 from groq import Groq
 from PIL import Image
 
@@ -85,7 +84,7 @@ def get_groq_client():
 
 client = get_groq_client()
 
-# Function to process text query with LLaMA
+# Process text query function
 def process_text_query(query, model="llama-3.2-90b-vision-preview"):
     try:
         with st.spinner("Processing your query..."):
@@ -100,9 +99,14 @@ def process_text_query(query, model="llama-3.2-90b-vision-preview"):
         st.error(f"Error processing query: {str(e)}")
         return None
 
-# Function to extract text from image using LLaVA
+# Extract text from image function
 def extract_text_from_image(image_base64):
     try:
+        # Limit the length of the base64 string if it's too long
+        if len(image_base64) > 2000:  # Adjust this value as necessary
+            st.warning("Image data is too long; truncating...")
+            image_base64 = image_base64[:2000]
+
         with st.spinner("Extracting text from image..."):
             response = client.chat.completions.create(
                 messages=[
@@ -115,30 +119,33 @@ def extract_text_from_image(image_base64):
         st.error(f"Error extracting text from image: {str(e)}")
         return None
 
-# Function to process image query using LLaMA after extracting text from the image
-def process_image_query(image_base64, query, model="llama-3.2-90b-vision-preview"):
+# Process image query function
+def process_image_query(image_base64, query, model="llama3-8b-8192"):
     try:
-        extracted_text = extract_text_from_image(image_base64)  # Extract text from image first
-        if extracted_text:
-            full_query = f"{query}. The extracted text from the image is: {extracted_text}"
-            with st.spinner("Processing your image query..."):
+        text_from_image = extract_text_from_image(image_base64)
+        if text_from_image:
+            combined_query = f"{query}\nExtracted text: {text_from_image}"
+            with st.spinner("Analyzing image..."):
                 response = client.chat.completions.create(
                     messages=[
-                        {"role": "user", "content": full_query}
+                        {"role": "user", "content": combined_query}
                     ],
                     model=model,
                 )
                 return response.choices[0].message.content
         else:
-            st.error("No text extracted from the image.")
             return None
     except Exception as e:
-        st.error(f"Error processing image query: {str(e)}")
+        st.error(f"Error analyzing image: {str(e)}")
         return None
 
-# Convert image to base64 format
+# Convert image to base64 format and handle size reduction if necessary
 def image_to_base64(image):
     try:
+        # Resize image if it's too large
+        max_size = (800, 800)  # Define a maximum size
+        image.thumbnail(max_size)
+
         buffered = io.BytesIO()
         image.save(buffered, format="JPEG")
         return base64.b64encode(buffered.getvalue()).decode('utf-8')
@@ -227,4 +234,4 @@ elif selected == "Image Analysis":
 
 # Footer
 st.markdown("---")
-st.caption("🚀 Powered by GROQ | Streamlit | LLaVA and LLaMA Models")
+st.caption("🚀 Powered by GROQ | Streamlit | LLaVA Models")
