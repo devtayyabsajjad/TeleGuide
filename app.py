@@ -2,10 +2,8 @@ import io
 import base64
 import streamlit as st
 import os
-from openai import OpenAI
+from groq import Groq
 from PIL import Image
-import requests
-import json
 
 # Set page configuration
 st.set_page_config(
@@ -33,7 +31,6 @@ st.markdown("""
         color: #1E3D59;
         text-align: center;
         margin-bottom: 2rem;
-        animation: fadeIn 1.5s ease-in;
     }
     .stButton>button {
         width: 100%;
@@ -58,13 +55,6 @@ st.markdown("""
     .css-1d391kg {
         background: linear-gradient(180deg, #1E3D59 0%, #2193b0 100%);
     }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in {
-        animation: fadeIn 1s ease-in;
-    }
     .success-message {
         padding: 1rem;
         border-radius: 10px;
@@ -82,31 +72,28 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize OpenAI client with Hugging Face secrets for API key
+# Initialize GROQ client with API key from secrets
 @st.cache_resource
-def get_openai_client():
+def get_groq_client():
     try:
-        # Fetch the API key from Hugging Face secrets
-        api_key = st.secrets["api_key"]
-        return OpenAI(api_key=api_key, base_url="https://api.together.xyz")
+        # Fetch the API key from secrets
+        api_key = st.secrets["GROQ_API_KEY"]
+        return Groq(api_key=api_key)
     except Exception as e:
-        st.error(f"Error initializing API client: {str(e)}")
+        st.error(f"Error initializing GROQ client: {str(e)}")
         return None
 
-client = get_openai_client()
+client = get_groq_client()
 
 # Process text query function
-def process_text_query(query, model="meta-llama/Llama-3.2-3B-Instruct-Turbo"):
+def process_text_query(query, model="llama-3.2-90b-vision-preview"):
     try:
         with st.spinner("Processing your query..."):
             response = client.chat.completions.create(
-                model=model,
                 messages=[
-                    {"role": "system", "content": "You are TeleGuide, an expert AI assistant specialized in telecommunication tasks. Provide detailed, practical, and accurate information."},
                     {"role": "user", "content": query}
                 ],
-                max_tokens=500,
-                temperature=0.7
+                model=model,
             )
             return response.choices[0].message.content
     except Exception as e:
@@ -114,24 +101,15 @@ def process_text_query(query, model="meta-llama/Llama-3.2-3B-Instruct-Turbo"):
         return None
 
 # Process image query function
-def process_image_query(image_base64, query, model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo"):
+def process_image_query(image_base64, query, model="llama3-8b-8192"):
     try:
         with st.spinner("Analyzing image..."):
-            system_message = "You are TeleGuide, an expert AI assistant in telecommunications infrastructure analysis."
             response = client.chat.completions.create(
-                model=model,
                 messages=[
-                    {"role": "system", "content": system_message},
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": query},
-                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
-                        ]
-                    }
+                    {"role": "user", "content": query},
+                    {"role": "user", "content": f"Image data: {image_base64}"}
                 ],
-                max_tokens=500,
-                temperature=0.7
+                model=model,
             )
             return response.choices[0].message.content
     except Exception as e:
@@ -162,7 +140,7 @@ with st.sidebar:
     """)
     st.markdown("---")
     st.markdown("#### Powered by Advanced AI")
-    st.caption("Using Llama 3.2 Models")
+    st.caption("Using GROQ Models")
 
 # Main content
 st.markdown('<h1 class="main-header">Welcome to TeleGuide</h1>', unsafe_allow_html=True)
@@ -229,4 +207,4 @@ elif selected == "Image Analysis":
 
 # Footer
 st.markdown("---")
-st.caption("🚀 Powered by OpenAI | Streamlit | Llama Models")
+st.caption("🚀 Powered by GROQ | Streamlit | Llama Models")
