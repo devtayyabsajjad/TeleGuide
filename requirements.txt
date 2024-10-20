@@ -6,3 +6,4 @@ streamlit-lottie==0.0.5
 streamlit-option-menu==0.3.12
 extra-streamlit-components==0.1.71
 openai==1.12.0
+groq
