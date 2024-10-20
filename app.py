@@ -5,11 +5,7 @@ import os
 from openai import OpenAI
 from PIL import Image
 import requests
-from io import BytesIO
 import json
-from streamlit_lottie import st_lottie
-from streamlit_option_menu import option_menu
-import time
 
 # Set page configuration
 st.set_page_config(
@@ -19,17 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Function to load Lottie animations
-def load_lottie(url: str):
-    try:
-        r = requests.get(url)
-        if r.status_code != 200:
-            return None
-        return r.json()
-    except:
-        return None
-
-# Apply custom CSS for styling and animations
+# Apply custom CSS for styling
 st.markdown("""
 <style>
     .stApp {
@@ -109,17 +95,6 @@ def get_openai_client():
 
 client = get_openai_client()
 
-# Load animations
-lottie_telecom = load_lottie("https://assets4.lottiefiles.com/packages/lf20_qz3tpn4w.json")
-lottie_analysis = load_lottie("https://assets4.lottiefiles.com/packages/lf20_xh83pj1k.json")
-
-# Check if Lottie animations loaded successfully
-if lottie_telecom:
-    st_lottie(lottie_telecom, height=200)
-else:
-    st.warning("Failed to load Lottie animation for Telecom.")
-
-
 # Process text query function
 def process_text_query(query, model="meta-llama/Llama-3.2-3B-Instruct-Turbo"):
     try:
@@ -176,7 +151,6 @@ def image_to_base64(image):
 # Sidebar content
 with st.sidebar:
     st.title("🛰️ TeleGuide")
-    st_lottie(lottie_telecom, height=200)
     st.markdown("---")
     st.info("Your AI-powered telecommunication assistant, providing expert analysis and insights.")
     st.markdown("### Features")
@@ -194,30 +168,14 @@ with st.sidebar:
 st.markdown('<h1 class="main-header">Welcome to TeleGuide</h1>', unsafe_allow_html=True)
 
 # Navigation menu
-selected = option_menu(
-    menu_title=None,
-    options=["Text Analysis", "Document Processing", "Image Analysis"],
-    icons=["chat-dots", "file-text", "image"],
-    menu_icon="cast",
-    default_index=0,
-    orientation="horizontal",
-    styles={
-        "container": {"padding": "0!important", "background-color": "transparent"},
-        "icon": {"color": "#1E3D59", "font-size": "25px"},
-        "nav-link": {
-            "font-size": "20px",
-            "text-align": "center",
-            "margin": "0px",
-            "--hover-color": "#eee",
-        },
-        "nav-link-selected": {"background-color": "#2193b0", "color": "white"},
-    }
+selected = st.selectbox(
+    "Choose Analysis Type:",
+    options=["Text Analysis", "Document Processing", "Image Analysis"]
 )
 
 # Handle different options from the navigation menu
 if selected == "Text Analysis":
     st.markdown("### 💬 Text Analysis")
-    st_lottie(lottie_analysis, height=200)
     
     query = st.text_area("Enter your telecommunications query:", height=100)
     if st.button("Process Query", key="text_query"):
@@ -272,4 +230,3 @@ elif selected == "Image Analysis":
 # Footer
 st.markdown("---")
 st.caption("🚀 Powered by OpenAI | Streamlit | Llama Models")
-
