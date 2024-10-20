@@ -124,7 +124,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Streamlit](https://streamlit.io/) for the amazing web app framework
 - [OpenAI](https://openai.com/) for the powerful language models
-- [LottieFiles](https://lottiefiles.com/) for the beautiful animations
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="rainbow line" />
