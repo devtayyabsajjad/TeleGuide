@@ -1,0 +1,8 @@
+streamlit==1.31.0
+Pillow==10.2.0
+requests==2.31.0
+together==0.2.5
+streamlit-lottie==0.0.5
+streamlit-option-menu==0.3.12
+extra-streamlit-components==0.1.71
+openai==1.12.0
