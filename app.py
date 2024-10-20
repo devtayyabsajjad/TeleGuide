@@ -234,4 +234,4 @@ elif selected == "Image Analysis":
 
 # Footer
 st.markdown("---")
-st.caption("🚀 Powered by GROQ | Streamlit | LLAMA 3.2 Models")
+st.caption("🚀 Powered by GROQ | Streamlit | LLAMA 3.2 ")
