@@ -166,8 +166,8 @@ with st.sidebar:
     - 📡 Infrastructure Planning
     """)
     st.markdown("---")
-    st.markdown("#### Powered by Advanced AI")
-    st.caption("Using GROQ Models")
+    st.markdown("#### Powered by llama 3.2 ")
+    # st.caption("UsinG llama 3.2 ")
 
 # Main content
 st.markdown('<h1 class="main-header">Welcome to TeleGuide</h1>', unsafe_allow_html=True)
