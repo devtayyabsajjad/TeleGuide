@@ -113,6 +113,13 @@ client = get_openai_client()
 lottie_telecom = load_lottie("https://assets4.lottiefiles.com/packages/lf20_qz3tpn4w.json")
 lottie_analysis = load_lottie("https://assets4.lottiefiles.com/packages/lf20_xh83pj1k.json")
 
+# Check if Lottie animations loaded successfully
+if lottie_telecom:
+    st_lottie(lottie_telecom, height=200)
+else:
+    st.warning("Failed to load Lottie animation for Telecom.")
+
+
 # Process text query function
 def process_text_query(query, model="meta-llama/Llama-3.2-3B-Instruct-Turbo"):
     try:
