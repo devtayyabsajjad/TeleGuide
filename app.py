@@ -85,7 +85,7 @@ def get_groq_client():
 
 client = get_groq_client()
 
-# Process text query function
+# Function to process text query with LLaMA
 def process_text_query(query, model="llama-3.2-90b-vision-preview"):
     try:
         with st.spinner("Processing your query..."):
@@ -100,23 +100,43 @@ def process_text_query(query, model="llama-3.2-90b-vision-preview"):
         st.error(f"Error processing query: {str(e)}")
         return None
 
-# Process image query function
-def process_image_query(image_base64, query, model="llama3-8b-8192"):
+# Function to extract text from image using LLaVA
+def extract_text_from_image(image_base64):
     try:
-        with st.spinner("Analyzing image..."):
+        with st.spinner("Extracting text from image..."):
             response = client.chat.completions.create(
                 messages=[
-                    {"role": "user", "content": query},
-                    {"role": "user", "content": f"Image data: {image_base64}"}
+                    {"role": "user", "content": f"Extract text from the following image data: {image_base64}"}
                 ],
-                model=model,
+                model="llava-v1.5-7b-4096-preview",  # Use LLaVA model ID
             )
             return response.choices[0].message.content
     except Exception as e:
-        st.error(f"Error analyzing image: {str(e)}")
+        st.error(f"Error extracting text from image: {str(e)}")
         return None
 
-# Convert image to base64
+# Function to process image query using LLaMA after extracting text from the image
+def process_image_query(image_base64, query, model="llama-3.2-90b-vision-preview"):
+    try:
+        extracted_text = extract_text_from_image(image_base64)  # Extract text from image first
+        if extracted_text:
+            full_query = f"{query}. The extracted text from the image is: {extracted_text}"
+            with st.spinner("Processing your image query..."):
+                response = client.chat.completions.create(
+                    messages=[
+                        {"role": "user", "content": full_query}
+                    ],
+                    model=model,
+                )
+                return response.choices[0].message.content
+        else:
+            st.error("No text extracted from the image.")
+            return None
+    except Exception as e:
+        st.error(f"Error processing image query: {str(e)}")
+        return None
+
+# Convert image to base64 format
 def image_to_base64(image):
     try:
         buffered = io.BytesIO()
@@ -207,4 +227,4 @@ elif selected == "Image Analysis":
 
 # Footer
 st.markdown("---")
-st.caption("🚀 Powered by GROQ | Streamlit | Llama Models")
+st.caption("🚀 Powered by GROQ | Streamlit | LLaVA and LLaMA Models")
